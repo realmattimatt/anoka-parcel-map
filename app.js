@@ -20,12 +20,17 @@ const usgsTopo = L.tileLayer(
     attribution: "Map tiles: USGS The National Map"
   }
 );
+
 osm.addTo(map);
 
-L.control.layers({
-  "Street map": osm,
-  "USGS Topo (contours)": usgsTopo
-}).addTo(map);
+L.control.layers(
+  {
+    "Street map": osm,
+    "USGS Topo (contours)": usgsTopo
+  },
+  null,
+  { collapsed: false }
+).addTo(map);
 
 
 let parcelLayer = null;
