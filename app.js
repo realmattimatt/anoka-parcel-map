@@ -18,6 +18,7 @@ let locationMarker = null;
 let locationAccuracyCircle = null;
 let requestNumber = 0;
 let refreshTimer = null;
+let locationWatchId = null;
 
 function setStatus(message) {
   statusElement.textContent = message;
@@ -166,9 +167,15 @@ locateButton.addEventListener("click", () => {
     return;
   }
 
-  setStatus("Getting your location…");
+  if (locationWatchId !== null) {
+    setStatus("Already tracking your location.");
+    return;
+  }
 
-  navigator.geolocation.getCurrentPosition(
+  setStatus("Getting your location…");
+  let firstFix = true;
+
+  locationWatchId = navigator.geolocation.watchPosition(
     (position) => {
       const latitude = position.coords.latitude;
       const longitude = position.coords.longitude;
@@ -190,8 +197,14 @@ locateButton.addEventListener("click", () => {
         weight: 1
       }).addTo(map);
 
-      map.setView(location, 17);
-      setStatus(`Location found; reported accuracy is about ${Math.round(accuracy)} m.`);
+      if (firstFix) {
+        map.setView(location, 17);
+        firstFix = false;
+      }
+
+      setStatus(
+        `Tracking location; reported accuracy is about ${Math.round(accuracy)} m.`
+      );
     },
     (error) => {
       console.error(error);
