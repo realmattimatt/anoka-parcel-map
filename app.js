@@ -8,10 +8,25 @@ const parcelQueryUrl =
 
 const map = L.map("map").setView([45.25, -93.25], 15);
 
-L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", {
+const osm = L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", {
   maxZoom: 19,
   attribution: "&copy; OpenStreetMap contributors"
+});
+
+const usgsTopo = L.tileLayer(
+  "https://basemap.nationalmap.gov/arcgis/rest/services/USGSTopo/MapServer/tile/{z}/{y}/{x}",
+  {
+    maxZoom: 19,
+    attribution: "Map tiles: USGS The National Map"
+  }
+);
+osm.addTo(map);
+
+L.control.layers({
+  "Street map": osm,
+  "USGS Topo (contours)": usgsTopo
 }).addTo(map);
+
 
 let parcelLayer = null;
 let locationMarker = null;
