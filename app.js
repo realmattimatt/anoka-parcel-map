@@ -218,8 +218,10 @@ locateButton.addEventListener("click", () => {
       }).addTo(map);
 
       if (firstFix) {
-        map.setView(location, 17);
+        map.setView(location, 17, { animate: false });
         firstFix = false;
+      } else {
+        map.panTo(location, { animate: false });
       }
 
       setStatus(
