@@ -1,4 +1,5 @@
-const statusElement = document.querySelector("#status");
+const parcelStatusElement = document.querySelector("#parcelStatus");
+const locationStatusElement = document.querySelector("#locationStatus");
 const locateButton = document.querySelector("#locateButton");
 
 // Anoka County GIS parcel/tax-information layer.
@@ -40,9 +41,14 @@ let requestNumber = 0;
 let refreshTimer = null;
 let locationWatchId = null;
 
-function setStatus(message) {
-  statusElement.textContent = message;
+function setParcelStatus(message) {
+  parcelStatusElement.textContent = message;
 }
+
+function setLocationStatus(message) {
+  locationStatusElement.textContent = message;
+}
+
 
 function formatNumber(value, digits = 2) {
   if (value === null || value === undefined || value === "") {
@@ -86,7 +92,7 @@ function makeParcelPopup(properties = {}) {
 
 async function loadParcels() {
   if (map.getZoom() < 14) {
-    setStatus("Zoom in to load parcel outlines.");
+    setParcelStatus("Zoom in to load parcel outlines.");
     return;
   }
 
@@ -117,7 +123,7 @@ async function loadParcels() {
     f: "geojson"
   });
 
-  setStatus("Loading parcels…");
+  setParcelStatus("Loading parcels…");
 
   try {
     const response = await fetch(`${parcelQueryUrl}?${params}`);
@@ -164,10 +170,10 @@ async function loadParcels() {
     }).addTo(map);
 
     const count = data.features?.length ?? 0;
-    setStatus(`${count} parcels loaded in this map view.`);
+    setParcelStatus(`${count} parcels loaded in this map view.`);
   } catch (error) {
     console.error(error);
-    setStatus(
+    setParcelStatus(
       "Could not load parcels. Check your internet connection and browser console."
     );
   }
@@ -183,16 +189,16 @@ loadParcels();
 
 locateButton.addEventListener("click", () => {
   if (!("geolocation" in navigator)) {
-    setStatus("Location is not available in this browser.");
+    setLocationStatus("Location is not available in this browser.");
     return;
   }
 
   if (locationWatchId !== null) {
-    setStatus("Already tracking your location.");
+    setLocationStatus("Already tracking your location.");
     return;
   }
 
-  setStatus("Getting your location…");
+  setLocationStatus("Getting your location…");
   let firstFix = true;
 
   locationWatchId = navigator.geolocation.watchPosition(
@@ -224,7 +230,7 @@ locateButton.addEventListener("click", () => {
         map.panTo(location, { animate: false });
       }
 
-      setStatus(
+      setLocationStatus(
         `Tracking location; reported accuracy is about ${Math.round(accuracy)} m.`
       );
     },
@@ -232,9 +238,11 @@ locateButton.addEventListener("click", () => {
       console.error(error);
 
       if (error.code === error.PERMISSION_DENIED) {
-        setStatus("Location permission was denied. Allow it in browser settings to try again.");
+        setLocationStatus(
+          "Location permission was denied. Allow it in browser settings to try again."
+        );
       } else {
-        setStatus("Could not get a location fix. Try again outdoors.");
+        setLocationStatus("Could not get a location fix. Try again outdoors.");
       }
     },
     {

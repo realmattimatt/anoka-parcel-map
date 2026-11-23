@@ -13,12 +13,15 @@
 </head>
 <body>
   <header class="toolbar">
-    <div>
-      <h1>Anoka Parcel Map</h1>
-      <p id="status">Starting map…</p>
-    </div>
-    <button id="locateButton" type="button">Locate me</button>
-  </header>
+  <div class="toolbar-copy">
+    <h1>Anoka Parcel Map</h1>
+    <p id="parcelStatus">Loading parcels…</p>
+    <p id="locationStatus">Location not started.</p>
+  </div>
+
+  <button id="locateButton">Locate me</button>
+</header>
+
 
   <main>
     <div id="map" aria-label="Map showing parcel boundaries"></div>
