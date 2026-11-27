@@ -235,7 +235,7 @@ locateButton.addEventListener("click", () => {
       }
 
       setLocationStatus(
-        `Tracking location; reported accuracy is about ${Math.round(accuracy)} m.`
+        `Tracking location; Accuracy: ${Math.round(accuracy)} m.`
       );
     },
     (error) => {
