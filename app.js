@@ -1,6 +1,8 @@
 const parcelStatusElement = document.querySelector("#parcelStatus");
 const locationStatusElement = document.querySelector("#locationStatus");
 const locateButton = document.querySelector("#locateButton");
+let popupOpen = false;
+
 
 // Anoka County GIS parcel/tax-information layer.
 const parcelQueryUrl =
@@ -55,8 +57,8 @@ function formatNumber(value, digits = 2) {
     return "Not available";
   }
 
-  const number = Number(value);
-  return Number.isFinite(number)
+const number = Number(value);
+return Number.isFinite(number)
     ? number.toLocaleString(undefined, { maximumFractionDigits: digits })
     : String(value);
 }
@@ -91,6 +93,8 @@ function makeParcelPopup(properties = {}) {
 }
 
 async function loadParcels() {
+  if (popupOpen) return;
+
   if (map.getZoom() < 14) {
     setParcelStatus("Zoom in to load parcel outlines.");
     return;
@@ -139,7 +143,8 @@ async function loadParcels() {
     }
 
     // Ignore an older request if the user moved the map while it was loading.
-    if (thisRequest !== requestNumber) return;
+    if (thisRequest !== requestNumber || popupOpen) return;
+
 
     if (parcelLayer) {
       map.removeLayer(parcelLayer);
@@ -181,11 +186,22 @@ async function loadParcels() {
 
 function scheduleParcelRefresh() {
   clearTimeout(refreshTimer);
+  if (popupOpen) return;
   refreshTimer = setTimeout(loadParcels, 500);
 }
 
 map.on("moveend", scheduleParcelRefresh);
 loadParcels();
+
+map.on("popupopen", () => {
+  popupOpen = true;
+});
+
+map.on("popupclose", () => {
+  popupOpen = false;
+  scheduleParcelRefresh();
+});
+
 
 locateButton.addEventListener("click", () => {
   if (!("geolocation" in navigator)) {
@@ -212,20 +228,29 @@ locateButton.addEventListener("click", () => {
       const accuracy = position.coords.accuracy;
       const location = [latitude, longitude];
 
-      if (locationMarker) map.removeLayer(locationMarker);
-      if (locationAccuracyCircle) map.removeLayer(locationAccuracyCircle);
+      const popupText = `Accuracy: about ${Math.round(accuracy)} m`;
 
-      locationMarker = L.marker(location)
-        .addTo(map)
-        .bindPopup(`Accuracy: (about ${Math.round(accuracy)} m accuracy)`);
+  if (!locationMarker) {
+    locationMarker = L.marker(location)
+      .addTo(map)
+      .bindPopup(popupText);
+  } else {
+    locationMarker.setLatLng(location);
+    locationMarker.setPopupContent(popupText);
+  }
 
-      locationAccuracyCircle = L.circle(location, {
-        radius: accuracy,
-        color: "#1769aa",
-        fillColor: "#1769aa",
-        fillOpacity: 0.12,
-        weight: 1
-      }).addTo(map);
+  if (!locationAccuracyCircle) {
+    locationAccuracyCircle = L.circle(location, {
+      radius: accuracy,
+      color: "#1769aa",
+      fillColor: "#1769aa",
+      fillOpacity: 0.12,
+      weight: 1
+    }).addTo(map);
+  } else {
+    locationAccuracyCircle.setLatLng(location);
+    locationAccuracyCircle.setRadius(accuracy);
+  }
 
       if (firstFix) {
         map.setView(location, 17, { animate: false });
