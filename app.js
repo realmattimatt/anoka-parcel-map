@@ -194,12 +194,16 @@ locateButton.addEventListener("click", () => {
   }
 
   if (locationWatchId !== null) {
-    setLocationStatus("Already tracking your location.");
-    return;
-  }
+  navigator.geolocation.clearWatch(locationWatchId);
+  locationWatchId = null;
+  locateButton.textContent = "Start location";
+  setLocationStatus("Location tracking stopped.");
+  return;
+}
 
-  setLocationStatus("Getting your location…");
   let firstFix = true;
+  locateButton.textContent = "Stop location";
+  setLocationStatus("Getting your location…");
 
   locationWatchId = navigator.geolocation.watchPosition(
     (position) => {
