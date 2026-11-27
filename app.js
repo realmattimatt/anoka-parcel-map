@@ -217,7 +217,7 @@ locateButton.addEventListener("click", () => {
 
       locationMarker = L.marker(location)
         .addTo(map)
-        .bindPopup(`Your location (about ${Math.round(accuracy)} m accuracy)`);
+        .bindPopup(`Accuracy: (about ${Math.round(accuracy)} m accuracy)`);
 
       locationAccuracyCircle = L.circle(location, {
         radius: accuracy,
