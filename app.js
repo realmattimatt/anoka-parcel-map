@@ -84,6 +84,7 @@ function makeParcelPopup(properties = {}) {
   ].filter(Boolean).join(", ");
 
   addPopupLine(popup, "Address", address || "Not available");
+  addPopupLine(popup, "Owner", properties.OWNER || "Not available");
   addPopupLine(popup, "Acres", formatNumber(properties.ACRES, 2));
   addPopupLine(popup, "Tax year", formatNumber(properties.TAX_YEAR, 0));
   addPopupLine(popup, "Total tax", formatNumber(properties.TOTAL_TAX, 0));
