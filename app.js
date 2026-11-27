@@ -160,6 +160,17 @@ async function loadParcels() {
       onEachFeature(feature, layer) {
         layer.bindPopup(makeParcelPopup(feature.properties));
 
+        layer.on("popupopen", () => {
+          popupOpen = true;
+        
+        });
+
+        layer.on("popupclose", () => {
+          popupOpen = false;
+          scheduleParcelRefresh();
+        });
+
+
         const owner = feature.properties?.OWNER;
 
         if (owner) {
@@ -192,16 +203,6 @@ function scheduleParcelRefresh() {
 
 map.on("moveend", scheduleParcelRefresh);
 loadParcels();
-
-map.on("popupopen", () => {
-  popupOpen = true;
-});
-
-map.on("popupclose", () => {
-  popupOpen = false;
-  scheduleParcelRefresh();
-});
-
 
 locateButton.addEventListener("click", () => {
   if (!("geolocation" in navigator)) {
